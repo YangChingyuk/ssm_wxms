@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="User">
+	
+	<insert id="add" parameterType="User">
+		insert into wxms_user(id,username,password,name,sex,phone,address,email,photo,role,createTime)
+		values(#{id},#{username},#{password},#{name},#{sex},#{phone},#{address},#{email},#{photo},#{role},sysdate)
+	</insert>
+	
+	<insert id="addMore" parameterType="List">
+		insert into wxms_user(id,username,password,name,sex,phone,address,email,photo,role,createTime)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.username},#{item.password},#{item.name},#{item.sex},#{item.phone},#{item.address},#{item.email},#{item.photo},#{item.role},sysdate)
+		</foreach>
+	</insert>
+	
+	<update id="update" parameterType="User">
+		update wxms_user set
+		username = #{username},
+		password = #{password},
+		name = #{name},
+		sex = #{sex},
+		phone = #{phone},
+		address = #{address},
+		email = #{email},
+		photo = #{photo},
+		role = #{role},
+		createTime = sysdate
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById">
+		delete from wxms_user where id = #{id}
+	</delete>
+	
+	<delete id="deleteMore">
+		delete from wxms_user where id in 
+		<foreach collection="array" open="(" close=")" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="queryById" resultType="User">
+		select * from wxms_user where id = #{id}
+	</select>
+	
+	<select id="queryAll" resultType="User">
+		<!-- id小于100 -->
+		select * from wxms_user 
+	</select>
+	
+	<select id="queryByPage" parameterType="map" resultType="User">
+		select ss.* from 
+		(select s.*,rownum r from
+		(select * from wxms_user order by id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="getTotals" resultType="int">
+		select count(*) from wxms_user
+	</select>
+	
+	
+</mapper>

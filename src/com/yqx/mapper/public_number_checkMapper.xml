@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PublicNumberCheck">
+	
+	<insert id="add" parameterType="PublicNumberCheck">
+		insert into wxms_public_number_check(id,pid,userid,applyTime,advise,state,checkedTime)
+		values(#{id},#{pid},#{userid},#{applyTime},#{advise},#{state},Sysdate)
+	</insert>
+	
+	<insert id="addMore" parameterType="List">
+		insert into wxms_public_number_check(id,pid,userid,applyTime,advise,state,checkedTime)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.pid},#{item.userid},#{item.applyTime},#{item.advise},#{item.state},#{item.checkedTime})
+		</foreach>
+	</insert>
+	
+	<update id="update" parameterType="PublicNumberCheck">
+		update wxms_public_number_check set
+		pid = #{pid},
+		userid = #{userid},
+		applyTime = #{applyTime},
+		advise = #{advise},
+		state = #{state},
+		checkedTime = Sysdate
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById">
+		delete from wxms_public_number_check where id = #{id}
+	</delete>
+	
+	<delete id="deleteMore">
+		delete from wxms_public_number_check where id in 
+		<foreach collection="array" open="(" close=")" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="queryById" resultType="PublicNumberCheck">
+		select * from wxms_public_number_check where id = #{id}
+	</select>
+	
+	<select id="queryAll" resultType="PublicNumberCheck">
+		<!-- id小于100 -->
+		select * from wxms_public_number_check 
+	</select>
+	
+	<select id="queryByPage" parameterType="map" resultType="PublicNumberCheck">
+		select ss.* from 
+		(select s.*,rownum r from
+		(select * from wxms_public_number_check order by id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="queryViewByPage" parameterType="map" resultType="com.yqx.vo.PublicNumberCheckVO">
+		<!-- select nc.*,u.name uname,n.public_name pname from wxms_public_number_check nc,wxms_user u,wxms_public_number n
+		where nc.pid=n.id and nc.userid=u.id order by nc.id -->
+		select ss.* from 
+		(select s.*,rownum r from
+		(select nc.id,nc.pid,nc.userid,nc.applytime,nc.advise,nc.state,nc.checkedtime,u.name uname,n.public_name pname from wxms_public_number_check nc,wxms_user u,wxms_public_number n
+    	where nc.pid=n.id and nc.userid=u.id order by nc.id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="getTotals" resultType="int">
+		select count(*) from wxms_public_number_check
+	</select>
+	
+	
+</mapper>

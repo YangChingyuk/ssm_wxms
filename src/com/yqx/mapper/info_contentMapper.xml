@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="InfoContent">
+	
+	<insert id="add" parameterType="InfoContent">
+		insert into wxms_info_content(id,pid,content,tid,userid,createTime)
+		values(#{id},#{pid},#{content},#{tid},#{userid},sysdate)
+	</insert>
+	
+	<insert id="addMore" parameterType="List">
+		insert into wxms_info_content(id,pid,content,tid,userid,createTime)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(#{id},#{item.pid},#{item.content},#{item.tid},#{item.userid},sysdate)
+		</foreach>
+	</insert>
+	
+	<update id="update" parameterType="InfoContent">
+		update wxms_info_content set
+		pid = #{pid},
+		content = #{content},
+		tid = #{tid},
+		userid = #{userid},
+		createTime = sysdate
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById">
+		delete from wxms_info_content where id = #{id}
+	</delete>
+	
+	<delete id="deleteMore">
+		delete from wxms_info_content where id in 
+		<foreach collection="array" open="(" close=")" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="queryById" resultType="InfoContent">
+		select * from wxms_info_content where id = #{id}
+	</select>
+	
+	<select id="queryAll" resultType="InfoContent">
+		<!-- id小于100 -->
+		select * from wxms_info_content 
+	</select>
+	
+	<select id="queryByPage" parameterType="map" resultType="InfoContent">
+		select ss.* from 
+		(select s.*,rownum r from
+		(select * from wxms_info_content order by id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="queryViewByPage" parameterType="map" resultType="com.yqx.vo.InfoContentVO">
+		<!-- select c.*,n.public_name pname,t.name tname,u.name uname from wxms_info_content c,wxms_public_number n,wxms_template t,wxms_user u
+		where c.pid=n.id and c.tid=t.id and c.userid=u.id -->
+		select ss.* from 
+		(select s.*,rownum r from
+		(select c.id,c.pid,c.content,c.tid,c.userid,c.createtime,n.public_name pname,t.name tname,u.name uname from wxms_info_content c,wxms_public_number n,wxms_template t,wxms_user u
+		where c.pid=n.id and c.tid=t.id and c.userid=u.id order by c.id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="getTotals" resultType="int">
+		select count(*) from wxms_info_content
+	</select>
+	
+	
+</mapper>

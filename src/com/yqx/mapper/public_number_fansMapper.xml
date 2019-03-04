@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PublicNumberFans">
+	
+	<insert id="add" parameterType="PublicNumberFans">
+		insert into wxms_public_number_fans(id,pid,addFans,reduceFans,countDate)
+		values(#{id},#{pid},#{addFans},#{reduceFans},#{countDate})
+	</insert>
+	
+	<insert id="addMore" parameterType="List">
+		insert into wxms_public_number_fans(pid,addFans,reduceFans,countDate)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.pid},#{item.addFans},#{item.reduceFans},#{item.countDate})
+		</foreach>
+	</insert>
+	
+	<update id="update" parameterType="PublicNumberFans">
+		update wxms_public_number_fans set
+		pid = #{pid},
+		addFans = #{addFans},
+		reduceFans = #{reduceFans},
+		countDate = #{countDate}
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById">
+		delete from wxms_public_number_fans where id = #{id}
+	</delete>
+	
+	<delete id="deleteMore">
+		delete from wxms_public_number_fans where id in 
+		<foreach collection="array" open="(" close=")" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="queryById" resultType="PublicNumberFans">
+		select * from wxms_public_number_fans where id = #{id}
+	</select>
+	
+	<select id="queryAll" resultType="PublicNumberFans">
+		<!-- id小于100 -->
+		select * from wxms_public_number_fans 
+	</select>
+	
+	<select id="queryByPage" parameterType="map" resultType="PublicNumberFans">
+		select ss.* from 
+		(select s.*,rownum r from
+		(select * from wxms_public_number_fans order by id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="queryViewByPage" parameterType="map" resultType="com.yqx.vo.PublicNumberFansVO">
+		<!-- select f.*,n.public_name pname from wxms_public_number_fans f,wxms_public_number n where f.pid=n.id -->
+		select ss.* from 
+		(select s.*,rownum r from
+		(select f.id,f.pid,f.addfans,f.reducefans,f.countdate,n.public_name pname from wxms_public_number_fans f,wxms_public_number n where f.pid=n.id order by f.id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="getTotals" resultType="int">
+		select count(*) from wxms_public_number_fans
+	</select>
+	
+	
+</mapper>

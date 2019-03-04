@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PublicNumberTemplate">
+	
+	<insert id="add" parameterType="PublicNumberTemplate">
+		insert into wxms_public_number_template(id,pid,tid)
+		values(#{id},#{pid},#{tid})
+	</insert>
+	
+	<insert id="addMore" parameterType="List">
+		insert into wxms_public_number_template(id,pid,tid)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.pid},#{item.tid})
+		</foreach>
+	</insert>
+	
+	<update id="update" parameterType="PublicNumberTemplate">
+		update wxms_public_number_template set
+		pid = #{pid},
+		tid = #{tid}
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById">
+		delete from wxms_public_number_template where id = #{id}
+	</delete>
+	
+	<delete id="deleteMore">
+		delete from wxms_public_number_template where id in 
+		<foreach collection="array" open="(" close=")" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="queryById" resultType="PublicNumberTemplate">
+		select * from wxms_public_number_template where id = #{id}
+	</select>
+	
+	<select id="queryAll" resultType="PublicNumberTemplate">
+		<!-- id小于100 -->
+		select * from wxms_public_number_template 
+	</select>
+	
+	<select id="queryByPage" parameterType="map" resultType="PublicNumberTemplate">
+		select ss.* from 
+		(select s.*,rownum r from
+		(select * from wxms_public_number_template order by id) s 
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="queryViewByPage" parameterType="map" resultType="com.yqx.vo.PublicNumberTemplateVO">
+		select ss.* from 
+		(select s.*,rownum r from
+		(select nt.id,n.public_name pname,t.name tname from wxms_public_number_template nt,wxms_template t,wxms_public_number n 
+		where t.id=nt.tid and n.id=nt.pid order by nt.id) s
+		where rownum &lt;= #{start}) ss 
+		where ss.r > #{end}
+	</select>
+	
+	<select id="getTotals" resultType="int">
+		select count(*) from wxms_public_number_template
+	</select>
+	
+	
+</mapper>
